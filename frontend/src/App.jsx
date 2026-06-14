@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 import Dashboard from './pages/Dashboard'
 import Radar from './pages/Radar'
 import Analise from './pages/Analise'
@@ -9,7 +10,8 @@ import Sidebar from './components/Sidebar'
 import Whatsapp from './pages/Whatsapp'
 import Planos from './pages/Planos'
 
-export default function App() {
+function AppInner() {
+  const { bg } = useTheme()
   const [pagina, setPagina] = useState('dashboard')
   const [usuario] = useState({
     nome: 'João Ribeiro',
@@ -25,17 +27,25 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans">
+    <div style={{ display: 'flex', height: '100vh', background: bg, fontFamily: 'sans-serif', transition: 'background 0.3s' }}>
       <Sidebar pagina={pagina} setPagina={setPagina} usuario={usuario} />
-      <main className="flex-1 overflow-y-auto">
-        {pagina === 'dashboard' && <Dashboard usuario={usuario} />}
-        {pagina === 'radar' && <Radar usuario={usuario} />}
-        {pagina === 'analise' && <Analise usuario={usuario} />}
-        {pagina === 'calculadora' && <Calculadora />}
-        {pagina === 'whatsapp' && <Whatsapp usuario={usuario} />}
+      <main style={{ flex: 1, overflowY: 'auto' }}>
+        {pagina === 'dashboard'     && <Dashboard usuario={usuario} />}
+        {pagina === 'radar'         && <Radar usuario={usuario} />}
+        {pagina === 'analise'       && <Analise usuario={usuario} />}
+        {pagina === 'calculadora'   && <Calculadora />}
+        {pagina === 'whatsapp'      && <Whatsapp usuario={usuario} />}
         {pagina === 'configuracoes' && <Configuracoes usuario={usuario} setPagina={setPagina} />}
-        {pagina === 'planos' && <Planos usuario={usuario} />}
+        {pagina === 'planos'        && <Planos usuario={usuario} />}
       </main>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   )
 }
