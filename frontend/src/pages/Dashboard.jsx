@@ -1,6 +1,36 @@
+import { useEffect, useState } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
 export default function Dashboard({ usuario }) {
-  const cotacao = 148.50
-  const tendencia = 'ALTA'
+  const [cotacao, setCotacao] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState(null)
+
+  useEffect(() => {
+    async function buscarCotacao() {
+      try {
+        setLoading(true)
+        const res = await fetch(`${API_URL}/api/cotacoes/${usuario.cultura}`)
+        if (!res.ok) throw new Error('Erro ao buscar cotação')
+        const data = await res.json()
+        setCotacao(data)
+      } catch (err) {
+        setErro('Não foi possível carregar as cotações.')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (usuario?.cultura) buscarCotacao()
+  }, [usuario])
+
+  const valorFormatado = cotacao ? `R$ ${cotacao.valor.toFixed(2).replace('.', ',')}` : '---'
+  const tendencia = cotacao?.tendencia || '---'
+  const variacao = cotacao?.variacao || '---'
+  const dolar = cotacao ? `R$ ${cotacao.dolar.toFixed(2).replace('.', ',')}` : '---'
+  const corVariacao = variacao.startsWith('+') ? 'text-green-600' : 'text-red-500'
 
   return (
     <div>
@@ -15,18 +45,27 @@ export default function Dashboard({ usuario }) {
       </div>
 
       <div className="p-6 flex flex-col gap-5">
-        <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-amber-800">
-          📈 <span><strong>IA detectou:</strong> Alta pressão compradora nos portos. Tendência de <strong>valorização</strong> para a próxima semana.</span>
-        </div>
+
+        {erro && (
+          <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700">
+            ⚠️ {erro}
+          </div>
+        )}
+
+        {cotacao?.analiseIA && (
+          <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-amber-800">
+            📈 <span><strong>IA detectou:</strong> {cotacao.analiseIA}</span>
+          </div>
+        )}
 
         <div>
           <p className="text-xs font-medium text-gray-400 mb-3">COTAÇÕES DE HOJE — {usuario.cultura.toUpperCase()}</p>
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: `Saca 60kg (${usuario.estado.slice(0,2).toUpperCase()})`, valor: 'R$ 148,50', badge: '↑ +1,8%', cor: 'text-green-600' },
-              { label: 'Dólar', valor: 'R$ 5,41', badge: '↑ +0,3%', cor: 'text-green-600' },
+              { label: `Saca 60kg (${usuario.estado.slice(0, 2).toUpperCase()})`, valor: loading ? '...' : valorFormatado, badge: loading ? '...' : variacao, cor: corVariacao },
+              { label: 'Dólar', valor: loading ? '...' : dolar, badge: '↑ +0,3%', cor: 'text-green-600' },
               { label: 'CBOT Chicago', valor: 'US$ 9,82', badge: '↓ -0,5%', cor: 'text-red-500' },
-              { label: 'Tendência IA', valor: '↑ ALTA', badge: 'Confiança 74%', cor: 'text-green-700' },
+              { label: 'Tendência IA', valor: loading ? '...' : `↑ ${tendencia}`, badge: 'Confiança 74%', cor: 'text-green-700' },
             ].map((card, i) => (
               <div key={i} className="bg-white border border-gray-100 rounded-xl p-4">
                 <p className="text-xs text-gray-400 mb-1">{card.label}</p>
@@ -57,7 +96,7 @@ export default function Dashboard({ usuario }) {
             <p className="text-sm font-medium text-gray-800 mb-3">Próxima Mensagem WhatsApp</p>
             <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 leading-relaxed border-l-4 border-green-400">
               🌱 <strong className="text-gray-800">Bom dia, {usuario.nome.split(' ')[0]}!</strong><br />
-              A saca de <strong className="text-gray-800">{usuario.cultura}</strong> em {usuario.estado} está em <strong className="text-gray-800">R$ {cotacao.toFixed(2)}</strong>.<br />
+              A saca de <strong className="text-gray-800">{usuario.cultura}</strong> em {usuario.estado} está em <strong className="text-gray-800">{valorFormatado}</strong>.<br />
               A tendência para hoje é <strong className="text-green-700">↑ {tendencia}</strong>.<br />
               Confira os detalhes no portal.
             </div>

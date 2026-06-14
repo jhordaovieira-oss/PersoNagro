@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  nome            String
+  email           String   @unique
+  senha           String
+  whatsapp        String
+  estado          String
+  cultura         String
+  stripeId        String?
+  assinaturaAtiva Boolean  @default(false)
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+}
+
+model Cotacao {
+  id        String   @id @default(cuid())
+  cultura   String
+  estado    String
+  valor     Float
+  tendencia String
+  data      DateTime @default(now())
+}
+
+model Noticia {
+  id      String   @id @default(cuid())
+  titulo  String
+  fonte   String
+  impacto String
+  cultura String
+  data    DateTime @default(now())
+}
