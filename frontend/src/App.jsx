@@ -7,6 +7,8 @@ import Configuracoes from './pages/Configuracoes'
 import Cadastro from './pages/Cadastro'
 import Sidebar from './components/Sidebar'
 import Whatsapp from './pages/Whatsapp'
+import Planos from './pages/Planos'
+
 export default function App() {
   const [pagina, setPagina] = useState('dashboard')
   const [usuario] = useState({
@@ -14,7 +16,8 @@ export default function App() {
     cultura: 'Soja',
     estado: 'Mato Grosso',
     whatsapp: '+55 65 99234-5678',
-    assinante: true
+    assinante: true,
+    plano: 'assinante'
   })
 
   if (pagina === 'cadastro') {
@@ -30,6 +33,8 @@ export default function App() {
         {pagina === 'analise' && <Analise usuario={usuario} />}
         {pagina === 'calculadora' && <Calculadora />}
         {pagina === 'whatsapp' && <Whatsapp usuario={usuario} />}
+        {pagina === 'configuracoes' && <Configuracoes usuario={usuario} setPagina={setPagina} />}
+        {pagina === 'planos' && <Planos usuario={usuario} />}
       </main>
     </div>
   )

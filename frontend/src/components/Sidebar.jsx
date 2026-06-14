@@ -5,6 +5,7 @@ export default function Sidebar({ pagina, setPagina, usuario }) {
     { id: 'analise', label: 'Análise Pessoal', icon: '📈' },
     { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
     { id: 'calculadora', label: 'Calculadora', icon: '🧮' },
+    { id: 'planos', label: 'Planos', icon: '⭐' },
     { id: 'configuracoes', label: 'Configurações', icon: '⚙️' },
   ]
 
